@@ -1,5 +1,13 @@
 # postmessage-rpc
 
+Simple yet powerful RPC client built on top of postMessage.
+
+- Execute both blocking and non-blocking atomic request/response transactions.
+- Full type safety and contract validation.
+- Automatic cleanup and finalization.
+- Fast serialization with support for circular references.
+- Builtin logging.
+
 [![Coverage Status](https://coveralls.io/repos/github/MatthewZito/postmessage-rpc/badge.svg?branch=master)](https://coveralls.io/github/MatthewZito/postmessage-rpc?branch=master)
 [![Continuous Deployment](https://github.com/MatthewZito/postmessage-rpc/actions/workflows/cd.yml/badge.svg)](https://github.com/MatthewZito/postmessage-rpc/actions/workflows/cd.yml)
 [![Continuous Integration](https://github.com/MatthewZito/postmessage-rpc/actions/workflows/ci.yml/badge.svg)](https://github.com/MatthewZito/postmessage-rpc/actions/workflows/ci.yml)
@@ -12,17 +20,24 @@
   - [Supported Environments](#support)
 - [Documentation](#docs)
 
-
 ## <a name="install"></a> Installation
+
+npm:
 
 ```bash
 npm install postmessage-rpc
 ```
 
-OR
+yarn:
 
 ```bash
 yarn add postmessage-rpc
+```
+
+pnpm:
+
+```bash
+pnpm add postmessage-rpc
 ```
 
 ### <a name="support"></a>  Supported Environments
@@ -32,13 +47,13 @@ yarn add postmessage-rpc
 Commonjs:
 
 ```js
-const { isDefined } = require('postmessage-rpc');
+const { RpcClient } = require('postmessage-rpc');
 ```
 
 ESM:
 
 ```js
-import { isDefined } from 'postmessage-rpc';
+import { RpcClient } from 'postmessage-rpc';
 ```
 
 ## <a name="docs"></a> Documentation

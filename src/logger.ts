@@ -1,5 +1,6 @@
 export class Logger {
 	#transport = console;
+
 	#baseFormat = `font-weight:bold;padding:6px;border:solid 1px white;border-radius:3px;`;
 
 	constructor(

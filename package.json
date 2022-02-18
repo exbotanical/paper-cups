@@ -49,6 +49,9 @@
     "url": "https://github.com/MatthewZito/postmessage-rpc/issues"
   },
   "homepage": "https://github.com/MatthewZito/postmessage-rpc#readme",
+  "dependencies": {
+    "uuid": "^8.3.2"
+  },
   "devDependencies": {
     "@babel/cli": "7.15.7",
     "@babel/core": "7.15.8",
@@ -82,8 +85,5 @@
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"
     }
-  },
-  "dependencies": {
-    "uuid": "^8.3.2"
   }
 }

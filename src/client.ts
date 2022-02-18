@@ -1,6 +1,7 @@
 import { v4 as generateUuid } from 'uuid';
 
 import { EphemeralListener } from './runtime';
+import { isNumber } from './utils';
 
 import type {
 	Opcode,
@@ -9,9 +10,7 @@ import type {
 	Subscriber,
 	InboundMessage,
 	TransactionId
-} from './types';
-import { isNumber } from './utils';
-import type { LoggerContract } from './types';
+, LoggerContract } from './types';
 
 /**
  * Remote procedure client for use over postMessage.
@@ -24,11 +23,12 @@ export class RpcClient extends EphemeralListener {
 	private readonly subscribersMap = new Map<Opcode, Set<Subscriber>>();
 
 	private readonly logger: LoggerContract;
+
 	constructor(
 		private readonly serialize: Serialize,
 		private readonly deserialize: Deserialize,
 		logger: LoggerContract,
-		loggerLocale: string = 'postmessage-rpc',
+		loggerLocale = 'postmessage-rpc',
 		shouldDisableLogger: () => boolean = () => false
 	) {
 		super('message');
