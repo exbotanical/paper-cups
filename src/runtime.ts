@@ -11,12 +11,13 @@ type WindowEvent = WindowEventHandlersEventMap[WindowEventName];
  * Said process' address space may or may not be persistent; in the former scenario, event listeners may accumulate and captivate memory.
  */
 export abstract class EphemeralListener {
-	// run noop as IIFE so we don't bother creating it unless it's needed
-	protected runtime = window || (() => buildNoopRuntime())();
-
-	constructor(public eventType: WindowEventName) {
+	constructor(
+		// run noop as IIFE so we don't bother creating it unless it's needed
+		protected env = (() => buildNoopEnv())(),
+		public eventType: WindowEventName
+	) {
 		const onFinalized = (handler: (event: WindowEvent) => void) => {
-			this.runtime.removeEventListener(eventType, handler);
+			this.env.removeEventListener(eventType, handler);
 		};
 
 		let finalizer: FinalizationRegistry<any> | null = new FinalizationRegistry(
@@ -36,7 +37,7 @@ export abstract class EphemeralListener {
 
 		finalizer.register(this, handler);
 
-		this.runtime.addEventListener(eventType, handler);
+		this.env.addEventListener(eventType, handler);
 	}
 
 	protected abstract onMessage(
@@ -44,7 +45,7 @@ export abstract class EphemeralListener {
 	): void;
 }
 
-function buildNoopRuntime() {
+function buildNoopEnv() {
 	/**
 	 * Noop object that can chain function invocations without throwing an exception.
 	 */
@@ -63,5 +64,5 @@ function buildNoopRuntime() {
 		}
 	);
 
-	return noop as unknown as Window;
+	return noop as unknown as Window | Document;
 }

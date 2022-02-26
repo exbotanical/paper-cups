@@ -1,3 +1,5 @@
+import type { Logger } from './logger';
+
 export enum Opcode {
 	TEST_COMMAND = 'TEST_COMMAND'
 }
@@ -34,14 +36,18 @@ export type Deserialize = <T>(
 	reviver?: ((this: any, key: string, value: any) => any) | undefined
 ) => T;
 
+export interface ValidatorFunction<T> {
+	(data: unknown): data is T;
+}
+
 interface LogFunction {
 	(...args: any[]): void;
 }
 
 export interface LoggerContract {
-	new (locale: string, shouldDisable: () => boolean): any;
 	info: LogFunction;
 	success: LogFunction;
 	warn: LogFunction;
 	error: LogFunction;
+	new (locale: string, shouldDisable: () => boolean): Logger;
 }

@@ -3,14 +3,16 @@ import { v4 as generateUuid } from 'uuid';
 import { EphemeralListener } from './runtime';
 import { isNumber } from './utils';
 
+import type { Logger } from './logger';
 import type {
 	Opcode,
 	Serialize,
 	Deserialize,
 	Subscriber,
 	InboundMessage,
-	TransactionId
-, LoggerContract } from './types';
+	TransactionId,
+	LoggerContract
+} from './types';
 
 /**
  * Remote procedure client for use over postMessage.
@@ -22,16 +24,17 @@ import type {
 export class RpcClient extends EphemeralListener {
 	private readonly subscribersMap = new Map<Opcode, Set<Subscriber>>();
 
-	private readonly logger: LoggerContract;
+	private readonly logger: Logger;
 
 	constructor(
+		protected readonly env: Window,
 		private readonly serialize: Serialize,
 		private readonly deserialize: Deserialize,
 		logger: LoggerContract,
 		loggerLocale = 'postmessage-rpc',
 		shouldDisableLogger: () => boolean = () => false
 	) {
-		super('message');
+		super(env, 'message');
 		this.logger = new logger(loggerLocale, shouldDisableLogger);
 	}
 
@@ -85,23 +88,30 @@ export class RpcClient extends EphemeralListener {
 	 * @param timeout Duration in milliseconds after which the wait period times out unless a message is received.
 	 * For an indefinite wait-period, set this to -1 (not recommended).
 	 */
-	async sendAndWait<T = any>(opcode: Opcode, payload?: any, timeout = 5000) {
-		return new Promise<T>((resolve, reject) => {
+	async sendAndWait<ReturnData = any, Payload = any>(
+		opcode: Opcode,
+		payload?: Payload,
+		timeout = 5000
+	) {
+		return new Promise<ReturnData>((resolve, reject) => {
 			const expectedTxId: TransactionId = generateUuid();
 			let timeoutId: NodeJS.Timeout | null = null;
 
-			const unsubscribe = this.subscribe<T>(opcode, ({ payload, txId }) => {
-				if (txId !== expectedTxId) {
-					return;
-				}
+			const unsubscribe = this.subscribe<ReturnData>(
+				opcode,
+				({ payload, txId }) => {
+					if (txId !== expectedTxId) {
+						return;
+					}
 
-				if (timeoutId) {
-					clearTimeout(timeoutId);
-				}
+					if (timeoutId) {
+						clearTimeout(timeoutId);
+					}
 
-				unsubscribe();
-				resolve(payload);
-			});
+					unsubscribe();
+					resolve(payload);
+				}
+			);
 
 			if (timeout > -1) {
 				timeoutId = setTimeout(() => {
@@ -113,8 +123,8 @@ export class RpcClient extends EphemeralListener {
 
 			this.sendMessage({
 				opcode,
-				txId: expectedTxId,
-				payload
+				payload,
+				txId: expectedTxId
 			});
 		});
 	}
@@ -150,11 +160,11 @@ export class RpcClient extends EphemeralListener {
 		);
 
 		const send = () => {
-			this.runtime.postMessage(
+			this.env.postMessage(
 				this.serialize({
 					opcode,
-					txId,
-					payload
+					payload,
+					txId
 				})
 			);
 
@@ -180,8 +190,8 @@ export class RpcClient extends EphemeralListener {
 		let { data } = event;
 
 		this.logger.info('Received a message event', {
-			origin: event.origin,
-			data: event.data
+			data: event.data,
+			origin: event.origin
 		});
 
 		if (!data) {
@@ -214,11 +224,11 @@ export class RpcClient extends EphemeralListener {
 		// validate data.origin
 		// check denylist
 
-		if (!data.opcode) {
+		if (!data?.opcode) {
 			return false;
 		}
 
-		if (data.payload == null) {
+		if (data?.payload == null) {
 			return false;
 		}
 

@@ -64,7 +64,7 @@ export default [
 			banner,
 			file: pkg.browser,
 			format: 'umd',
-			name: 'postmessage-rpc'
+			name: 'pm-rpc'
 		},
 		plugins: [...pluginsBase]
 	},
@@ -76,7 +76,7 @@ export default [
 			banner,
 			file: pkg.browser.replace(/\.js$/, '.min.js'),
 			format: 'umd',
-			name: 'postmessage-rpc'
+			name: 'pm-rpc'
 		},
 		plugins: [...pluginsBase, terser()]
 	},
