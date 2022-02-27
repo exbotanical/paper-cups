@@ -6,7 +6,9 @@ export enum Opcode {
 
 export type TransactionId = string;
 
-export interface InboundMessage<T> {
+export type BasePayload = Record<string, unknown>;
+
+export interface InboundMessage<T extends BasePayload> {
 	// the operation type e.g. command code
 	opcode: Opcode;
 	// transaction id -> should correspond to request if there was one
@@ -15,8 +17,12 @@ export interface InboundMessage<T> {
 	payload: T;
 }
 
-export interface Subscriber<Data = any> {
-	(data: InboundMessage<Data>): void;
+export type MaybeProps<T extends BasePayload> = {
+	[K in keyof T]?: T[K];
+};
+
+export interface Subscriber<Data extends BasePayload> {
+	(data: InboundMessage<MaybeProps<Data>>): void;
 }
 
 /**
@@ -40,14 +46,6 @@ export interface ValidatorFunction<T> {
 	(data: unknown): data is T;
 }
 
-interface LogFunction {
-	(...args: any[]): void;
-}
-
 export interface LoggerContract {
-	info: LogFunction;
-	success: LogFunction;
-	warn: LogFunction;
-	error: LogFunction;
 	new (locale: string, shouldDisable: () => boolean): Logger;
 }

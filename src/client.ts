@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-argument,@typescript-eslint/no-unsafe-member-access */
 import { v4 as generateUuid } from 'uuid';
 
+import { Logger } from './logger';
 import { EphemeralListener } from './runtime';
 import { isNumber } from './utils';
 
-import type { Logger } from './logger';
 import type {
 	Opcode,
 	Serialize,
@@ -11,7 +12,9 @@ import type {
 	Subscriber,
 	InboundMessage,
 	TransactionId,
-	LoggerContract
+	LoggerContract,
+	BasePayload,
+	MaybeProps
 } from './types';
 
 /**
@@ -20,31 +23,31 @@ import type {
  * Any event listeners are automatically finalized @see {@link EphemeralListener }
  *
  * @todo Adopt a SCA polyfill if we expect circular references in payloads. @see https://github.com/ungap/structured-clone
+ * @todo allow any payload type via overloads
  */
 export class RpcClient extends EphemeralListener {
-	private readonly subscribersMap = new Map<Opcode, Set<Subscriber>>();
+	private readonly subscribersMap = new Map<Opcode, Set<Subscriber<any>>>();
 
 	private readonly logger: Logger;
 
 	constructor(
-		protected readonly env: Window,
-		private readonly serialize: Serialize,
-		private readonly deserialize: Deserialize,
-		logger: LoggerContract,
+		private readonly serialize: Serialize = JSON.stringify,
+		private readonly deserialize: Deserialize = JSON.parse,
+		logger: LoggerContract = Logger,
 		loggerLocale = 'postmessage-rpc',
 		shouldDisableLogger: () => boolean = () => false
 	) {
-		super(env, 'message');
+		super('message');
 		this.logger = new logger(loggerLocale, shouldDisableLogger);
 	}
 
 	/**
 	 * Execute a subscription once. Non-blocking.
 	 */
-	once(opcode: Opcode, handler: Subscriber) {
+	once<T extends BasePayload>(opcode: Opcode, handler: Subscriber<T>) {
 		const subscriptions = this.getSubscriptions(opcode);
 
-		const subscription: Subscriber = (...args) => {
+		const subscription: Subscriber<T> = (...args) => {
 			handler(...args);
 			subscriptions.delete(subscription);
 		};
@@ -58,11 +61,14 @@ export class RpcClient extends EphemeralListener {
 	 * @param timeout Duration in milliseconds after which the wait period times out unless a message is received.
 	 * For an indefinite wait-period, set this to -1 (not recommended).
 	 */
-	async listenAndWait<T = any>(opcode: Opcode, timeout = 5000) {
-		return new Promise<T>((resolve, reject) => {
+	async listenAndWait<ReturnData extends BasePayload>(
+		opcode: Opcode,
+		timeout = 5000
+	) {
+		return new Promise<MaybeProps<ReturnData>>((resolve, reject) => {
 			let timeoutId: NodeJS.Timeout | null = null;
 
-			const unsubscribe = this.subscribe<T>(opcode, ({ payload }) => {
+			const unsubscribe = this.subscribe<ReturnData>(opcode, ({ payload }) => {
 				if (timeoutId) {
 					clearTimeout(timeoutId);
 				}
@@ -88,12 +94,12 @@ export class RpcClient extends EphemeralListener {
 	 * @param timeout Duration in milliseconds after which the wait period times out unless a message is received.
 	 * For an indefinite wait-period, set this to -1 (not recommended).
 	 */
-	async sendAndWait<ReturnData = any, Payload = any>(
+	async sendAndWait<ReturnData extends BasePayload, SendData = any>(
 		opcode: Opcode,
-		payload?: Payload,
+		payload?: SendData,
 		timeout = 5000
 	) {
-		return new Promise<ReturnData>((resolve, reject) => {
+		return new Promise<MaybeProps<ReturnData>>((resolve, reject) => {
 			const expectedTxId: TransactionId = generateUuid();
 			let timeoutId: NodeJS.Timeout | null = null;
 
@@ -135,7 +141,10 @@ export class RpcClient extends EphemeralListener {
 	 * @param handler - {@link Subscriber} A subscriber function that will be invoked when a response message is received.
 	 * @returns unsubscribe handler
 	 */
-	subscribe<T = any>(opcode: Opcode, handler: Subscriber<T>) {
+	subscribe<ReturnData extends BasePayload>(
+		opcode: Opcode,
+		handler: Subscriber<ReturnData>
+	) {
 		const subscriptions = this.getSubscriptions(opcode);
 
 		subscriptions.add(handler);
@@ -143,7 +152,7 @@ export class RpcClient extends EphemeralListener {
 		return () => subscriptions.delete(handler);
 	}
 
-	sendMessage({
+	sendMessage<T>({
 		opcode,
 		txId,
 		payload,
@@ -151,7 +160,7 @@ export class RpcClient extends EphemeralListener {
 	}: {
 		opcode: Opcode;
 		txId?: TransactionId;
-		payload?: any;
+		payload?: T;
 		delay?: number;
 	}) {
 		this.logger.info(
