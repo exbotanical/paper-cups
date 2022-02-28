@@ -5,9 +5,3 @@ beforeEach(() => {
 	jest.clearAllMocks();
 	jest.clearAllTimers();
 });
-
-afterEach(async () => {
-	jest.resetAllMocks();
-	jest.clearAllMocks();
-	jest.clearAllTimers();
-});

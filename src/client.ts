@@ -24,7 +24,7 @@ import type {
  * @todo allow any payload type via overloads
  */
 export class RpcClient extends EphemeralListener {
-	private readonly subscribersMap = new Map<string, Set<Subscriber<any>>>();
+	private readonly subscribersMap = new Map<string, Set<Subscriber>>();
 
 	private readonly logger: Logger;
 
@@ -171,8 +171,8 @@ export class RpcClient extends EphemeralListener {
 				this.serialize({
 					opcode,
 					payload,
-					txId,
-					sender: true
+					sender: true,
+					txId
 				}),
 				this.parentOrigin
 			);
@@ -220,7 +220,7 @@ export class RpcClient extends EphemeralListener {
 	/**
 	 * Validate whether the inbound message is expected and valid.
 	 */
-	private isInboundRpcMessage(data: any): data is InboundMessage<any> {
+	private isInboundRpcMessage(data: any): data is InboundMessage {
 		if (!data) {
 			return false;
 		}

@@ -1,18 +1,13 @@
+/* eslint-disable jest/no-done-callback */
 import { RpcClient } from '../client';
 
-import {
-	txId,
-	TEST_OPCODE,
-	TEST_OPCODE2,
-	testPayload,
-	sendMessage
-} from './utils';
+import { TEST_OPCODE, TEST_OPCODE2, testPayload, sendMessage } from './utils';
 
 describe('rpc client', () => {
 	const client = new RpcClient();
 	it('`subscribe` subscribes to message events of a given opcode', (done) => {
 		client.subscribe(TEST_OPCODE, (data) => {
-			expect(data.payload).toEqual(testPayload);
+			expect(data.payload).toStrictEqual(testPayload);
 			done();
 		});
 
@@ -23,7 +18,7 @@ describe('rpc client', () => {
 		const spy = jest.fn();
 
 		function assert() {
-			expect(spy).toBeCalledTimes(0);
+			expect(spy).toHaveBeenCalledTimes(0);
 			done();
 		}
 
@@ -52,7 +47,7 @@ describe('rpc client', () => {
 		const spy = jest.fn();
 
 		function assert() {
-			expect(spy).toBeCalledTimes(1);
+			expect(spy).toHaveBeenCalledTimes(1);
 			u();
 			u2();
 			done();
@@ -62,7 +57,7 @@ describe('rpc client', () => {
 			spy(data);
 		});
 
-		const u2 = client.subscribe(TEST_OPCODE2, (data) => {
+		const u2 = client.subscribe(TEST_OPCODE2, () => {
 			assert();
 		});
 
@@ -74,7 +69,7 @@ describe('rpc client', () => {
 		const spy = jest.fn();
 
 		function assert() {
-			expect(spy).toBeCalledTimes(1);
+			expect(spy).toHaveBeenCalledTimes(1);
 			u();
 			u2();
 			done();
@@ -98,7 +93,7 @@ describe('rpc client', () => {
 		const spy = jest.fn();
 
 		function assert() {
-			expect(spy).toBeCalledTimes(0);
+			expect(spy).toHaveBeenCalledTimes(0);
 			u();
 			u2();
 			done();
@@ -121,7 +116,7 @@ describe('rpc client', () => {
 		const spy = jest.fn();
 
 		function assert() {
-			expect(spy).toBeCalledTimes(0);
+			expect(spy).toHaveBeenCalledTimes(0);
 
 			done();
 		}

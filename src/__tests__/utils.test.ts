@@ -6,16 +6,16 @@ describe('utils', () => {
 			const types = ['str', {}, [1], null, undefined, new Map(), new Set()];
 
 			types.forEach((type) => {
-				expect(isNumber(type)).toEqual(false);
+				expect(isNumber(type)).toBe(false);
 			});
 		});
 
 		it('returns false given NaN', () => {
-			expect(isNumber(NaN)).toEqual(false);
+			expect(isNumber(NaN)).toBe(false);
 		});
 
 		it('returns true given a number', () => {
-			expect(isNumber(9)).toEqual(true);
+			expect(isNumber(9)).toBe(true);
 		});
 	});
 
@@ -38,6 +38,7 @@ describe('utils', () => {
 
 		it('returns the instance from method invocations', () => {
 			expect(() => {
+				// eslint-disable-next-line @typescript-eslint/no-confusing-void-expression
 				env
 					.addEventListener('', () => {})
 					// @ts-expect-error

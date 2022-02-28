@@ -1,4 +1,4 @@
-export type TestPayload = {
-	x: number;
-	y: number;
-};
+export interface TestPayload {
+	x?: number;
+	y?: number;
+}
