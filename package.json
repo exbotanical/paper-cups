@@ -30,8 +30,8 @@
     "lint": "eslint --ext .js,.ts,.json --fix .",
     "prerelease": "npm pack && tar -xvzf *.tgz && rimraf package *.tgz",
     "semantic-release": "semantic-release",
-    "test": "jest --bail --coverage __tests__",
-    "test:watch": "jest --watch"
+    "test": "jest --bail --runInBand --coverage __tests__",
+    "test:dev": "jest --runInBand --watch"
   },
   "lint-staged": {
     "src/**/*.ts": [

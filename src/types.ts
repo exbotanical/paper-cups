@@ -1,29 +1,12 @@
 import type { Logger } from './logger';
 
-export enum Opcode {
-	TEST_COMMAND = 'TEST_COMMAND'
-}
-
 export type TransactionId = string;
 
-export type BasePayload = Record<string, unknown>;
-
-export interface InboundMessage<T extends BasePayload> {
-	// the operation type e.g. command code
-	opcode: Opcode;
-	// transaction id -> should correspond to request if there was one
-	txId?: TransactionId;
-	// payload data
-	payload: T;
-}
-
-export type MaybeProps<T extends BasePayload> = {
-	[K in keyof T]?: T[K];
-};
-
-export interface Subscriber<Data extends BasePayload> {
-	(data: InboundMessage<MaybeProps<Data>>): void;
-}
+export type MaybeProps<T> = T extends Record<string, any>
+	? {
+			[K in keyof T]?: T[K];
+	  }
+	: T | undefined;
 
 /**
  * Serializer function.
@@ -42,8 +25,17 @@ export type Deserialize = <T>(
 	reviver?: ((this: any, key: string, value: any) => any) | undefined
 ) => T;
 
-export interface ValidatorFunction<T> {
-	(data: unknown): data is T;
+export interface InboundMessage<T = any> {
+	// the operation type e.g. command code
+	opcode: string;
+	// transaction id -> should correspond to request if there was one
+	txId?: TransactionId;
+	// payload data
+	payload: T;
+}
+
+export interface Subscriber<Data = any> {
+	(data: InboundMessage<MaybeProps<Data>>): void;
 }
 
 export interface LoggerContract {

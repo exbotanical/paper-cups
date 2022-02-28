@@ -6,14 +6,12 @@ import { EphemeralListener } from './runtime';
 import { isNumber } from './utils';
 
 import type {
-	Opcode,
 	Serialize,
 	Deserialize,
 	Subscriber,
 	InboundMessage,
 	TransactionId,
 	LoggerContract,
-	BasePayload,
 	MaybeProps
 } from './types';
 
@@ -26,25 +24,27 @@ import type {
  * @todo allow any payload type via overloads
  */
 export class RpcClient extends EphemeralListener {
-	private readonly subscribersMap = new Map<Opcode, Set<Subscriber<any>>>();
+	private readonly subscribersMap = new Map<string, Set<Subscriber<any>>>();
 
 	private readonly logger: Logger;
 
 	constructor(
+		private readonly parentOrigin = '*',
 		private readonly serialize: Serialize = JSON.stringify,
 		private readonly deserialize: Deserialize = JSON.parse,
 		logger: LoggerContract = Logger,
-		loggerLocale = 'postmessage-rpc',
-		shouldDisableLogger: () => boolean = () => false
+		loggerLocale = 'pm-rpc',
+		shouldDisableLogger: () => boolean = () => process.env.NODE_ENV === 'test'
 	) {
 		super('message');
+
 		this.logger = new logger(loggerLocale, shouldDisableLogger);
 	}
 
 	/**
 	 * Execute a subscription once. Non-blocking.
 	 */
-	once<T extends BasePayload>(opcode: Opcode, handler: Subscriber<T>) {
+	once<T = any>(opcode: string, handler: Subscriber<T>) {
 		const subscriptions = this.getSubscriptions(opcode);
 
 		const subscription: Subscriber<T> = (...args) => {
@@ -61,10 +61,7 @@ export class RpcClient extends EphemeralListener {
 	 * @param timeout Duration in milliseconds after which the wait period times out unless a message is received.
 	 * For an indefinite wait-period, set this to -1 (not recommended).
 	 */
-	async listenAndWait<ReturnData extends BasePayload>(
-		opcode: Opcode,
-		timeout = 5000
-	) {
+	async listenAndWait<ReturnData = any>(opcode: string, timeout = 5000) {
 		return new Promise<MaybeProps<ReturnData>>((resolve, reject) => {
 			let timeoutId: NodeJS.Timeout | null = null;
 
@@ -94,18 +91,20 @@ export class RpcClient extends EphemeralListener {
 	 * @param timeout Duration in milliseconds after which the wait period times out unless a message is received.
 	 * For an indefinite wait-period, set this to -1 (not recommended).
 	 */
-	async sendAndWait<ReturnData extends BasePayload, SendData = any>(
-		opcode: Opcode,
+	async sendAndWait<ReturnData = any, SendData = any>(
+		opcode: string,
 		payload?: SendData,
 		timeout = 5000
 	) {
 		return new Promise<MaybeProps<ReturnData>>((resolve, reject) => {
 			const expectedTxId: TransactionId = generateUuid();
+
 			let timeoutId: NodeJS.Timeout | null = null;
 
 			const unsubscribe = this.subscribe<ReturnData>(
 				opcode,
 				({ payload, txId }) => {
+					/* istanbul ignore if */
 					if (txId !== expectedTxId) {
 						return;
 					}
@@ -141,15 +140,14 @@ export class RpcClient extends EphemeralListener {
 	 * @param handler - {@link Subscriber} A subscriber function that will be invoked when a response message is received.
 	 * @returns unsubscribe handler
 	 */
-	subscribe<ReturnData extends BasePayload>(
-		opcode: Opcode,
-		handler: Subscriber<ReturnData>
-	) {
+	subscribe<ReturnData = any>(opcode: string, handler: Subscriber<ReturnData>) {
 		const subscriptions = this.getSubscriptions(opcode);
 
 		subscriptions.add(handler);
 
-		return () => subscriptions.delete(handler);
+		return () => {
+			subscriptions.delete(handler);
+		};
 	}
 
 	sendMessage<T>({
@@ -158,7 +156,7 @@ export class RpcClient extends EphemeralListener {
 		payload,
 		delay
 	}: {
-		opcode: Opcode;
+		opcode: string;
 		txId?: TransactionId;
 		payload?: T;
 		delay?: number;
@@ -173,8 +171,10 @@ export class RpcClient extends EphemeralListener {
 				this.serialize({
 					opcode,
 					payload,
-					txId
-				})
+					txId,
+					sender: true
+				}),
+				this.parentOrigin
 			);
 
 			this.logger.info(
@@ -197,11 +197,6 @@ export class RpcClient extends EphemeralListener {
 	 */
 	protected onMessage(event: MessageEvent) {
 		let { data } = event;
-
-		this.logger.info('Received a message event', {
-			data: event.data,
-			origin: event.origin
-		});
 
 		if (!data) {
 			return;
@@ -230,6 +225,10 @@ export class RpcClient extends EphemeralListener {
 			return false;
 		}
 
+		if (data.sender) {
+			return false;
+		}
+
 		// validate data.origin
 		// check denylist
 
@@ -247,7 +246,7 @@ export class RpcClient extends EphemeralListener {
 	/**
 	 * Resolve subscriptions for a given opcode.
 	 */
-	private getSubscriptions(opcode: Opcode) {
+	private getSubscriptions(opcode: string) {
 		let subscriptions = this.subscribersMap.get(opcode);
 
 		if (!subscriptions) {

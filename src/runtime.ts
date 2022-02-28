@@ -1,3 +1,5 @@
+import { buildNoopEnv } from './utils';
+
 type WindowEventName = keyof WindowEventHandlersEventMap;
 type WindowEvent = WindowEventHandlersEventMap[WindowEventName];
 
@@ -15,7 +17,7 @@ export abstract class EphemeralListener {
 	// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 	protected env = window || (() => buildNoopEnv())();
 
-	constructor(public eventType: WindowEventName) {
+	constructor(protected eventType: WindowEventName) {
 		const onFinalized = (handler: (event: WindowEvent) => void) => {
 			this.env.removeEventListener(eventType, handler);
 		};
@@ -43,26 +45,4 @@ export abstract class EphemeralListener {
 	protected abstract onMessage(
 		event: WindowEventHandlersEventMap[keyof WindowEventHandlersEventMap]
 	): void;
-}
-
-function buildNoopEnv() {
-	/**
-	 * Noop object that can chain function invocations without throwing an exception.
-	 */
-	const noop: any = new Proxy(
-		{},
-		{
-			apply(target, thisArg) {
-				return () => thisArg;
-			},
-			get(target, prop, receiver) {
-				// if (prop === known intermediates here) {
-				// 	return receiver;
-				// }
-				return () => receiver;
-			}
-		}
-	);
-
-	return noop as unknown as Document | Window;
 }

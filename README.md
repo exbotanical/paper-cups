@@ -6,7 +6,7 @@ Simple yet powerful RPC client built on top of postMessage.
 - Full type safety and contract validation.
 - Automatic cleanup and finalization.
 - Fast serialization with support for circular references.
-- Builtin logging.
+- Built-in logging.
 
 [![Coverage Status](https://coveralls.io/repos/github/MatthewZito/pm-rpc/badge.svg?branch=master)](https://coveralls.io/github/MatthewZito/pm-rpc?branch=master)
 [![Continuous Deployment](https://github.com/MatthewZito/pm-rpc/actions/workflows/cd.yml/badge.svg)](https://github.com/MatthewZito/pm-rpc/actions/workflows/cd.yml)
