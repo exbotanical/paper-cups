@@ -3,7 +3,7 @@ import { RpcClient } from '../client';
 
 import { TEST_OPCODE, TEST_OPCODE2, testPayload, sendMessage } from './utils';
 
-describe('rpc client', () => {
+describe('rpc client subscriptions', () => {
 	const client = new RpcClient();
 	it('`subscribe` subscribes to message events of a given opcode', (done) => {
 		client.subscribe(TEST_OPCODE, (data) => {

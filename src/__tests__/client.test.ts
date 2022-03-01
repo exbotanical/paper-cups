@@ -2,7 +2,10 @@ import { RpcClient } from '../client';
 
 import { TEST_OPCODE, TEST_OPCODE2, timeout, sendMessage } from './utils';
 
-import type { TestPayload } from './types';
+interface TestPayload {
+	x?: number;
+	y?: number;
+}
 
 const txId = 'test';
 jest.mock('uuid', () => ({
@@ -15,9 +18,7 @@ describe('rpc client', () => {
 	it('`listenAndWait` throws an error if timeout is exceeded', async () => {
 		const promise = client.listenAndWait(TEST_OPCODE, timeout);
 
-		Promise.resolve().then(() => {
-			jest.advanceTimersByTime(timeout * 2);
-		});
+		jest.advanceTimersByTime(timeout * 2);
 
 		await expect(promise).rejects.toThrow(
 			`listenAndWait timed out after ${timeout}ms`
@@ -27,9 +28,7 @@ describe('rpc client', () => {
 	it('`sendAndWait` throws an error if timeout is exceeded', async () => {
 		const promise = client.sendAndWait(TEST_OPCODE, {}, timeout);
 
-		Promise.resolve().then(() => {
-			jest.advanceTimersByTime(timeout * 2);
-		});
+		jest.advanceTimersByTime(timeout * 2);
 
 		await expect(promise).rejects.toThrow(
 			`sendAndWait timed out after ${timeout}ms`
@@ -37,9 +36,7 @@ describe('rpc client', () => {
 	});
 
 	it('`once` subscribes to and receives a message only once', async () => {
-		Promise.resolve().then(() => {
-			sendMessage();
-		});
+		sendMessage();
 
 		const data = await new Promise<TestPayload>((r) => {
 			client.once<TestPayload>(TEST_OPCODE, (data) => {
@@ -54,9 +51,7 @@ describe('rpc client', () => {
 	it('`once` ignores messages to which it is not subscribed', () => {
 		const spy = jest.fn();
 
-		Promise.resolve().then(() => {
-			sendMessage({ opcode: TEST_OPCODE2 });
-		});
+		sendMessage({ opcode: TEST_OPCODE2 });
 
 		client.once(TEST_OPCODE, spy);
 
@@ -64,9 +59,7 @@ describe('rpc client', () => {
 	});
 
 	it('`listenAndWait` waits for the next message of a given opcode', async () => {
-		Promise.resolve().then(() => {
-			sendMessage();
-		});
+		sendMessage();
 
 		const { x, y } = await client.listenAndWait<TestPayload>(TEST_OPCODE);
 		expect(x).toBe(3);
@@ -76,13 +69,9 @@ describe('rpc client', () => {
 	it('`listenAndWait` ignores messages to which it is not subscribed', async () => {
 		const promise = client.listenAndWait<TestPayload>(TEST_OPCODE, timeout);
 
-		Promise.resolve().then(() => {
-			sendMessage({ opcode: TEST_OPCODE2 });
-		});
+		sendMessage({ opcode: TEST_OPCODE2 });
 
-		Promise.resolve().then(() => {
-			jest.advanceTimersByTime(timeout * 2);
-		});
+		jest.advanceTimersByTime(timeout * 2);
 
 		await expect(promise).rejects.toThrow(
 			`listenAndWait timed out after ${timeout}ms`
@@ -90,9 +79,7 @@ describe('rpc client', () => {
 	});
 
 	it('`sendAndWait` waits for the next message of a given opcode and txId', async () => {
-		Promise.resolve().then(() => {
-			sendMessage({ opcode: TEST_OPCODE, txId });
-		});
+		sendMessage({ opcode: TEST_OPCODE, txId });
 
 		const { x, y } = await client.sendAndWait<TestPayload>(
 			TEST_OPCODE,
@@ -116,13 +103,9 @@ describe('rpc client', () => {
 	it('`sendAndWait` ignores messages to which it is not subscribed', async () => {
 		const promise = client.sendAndWait<TestPayload>(TEST_OPCODE, {}, timeout);
 
-		Promise.resolve().then(() => {
-			sendMessage({ opcode: TEST_OPCODE2, txId });
-		});
+		sendMessage({ opcode: TEST_OPCODE2, txId });
 
-		Promise.resolve().then(() => {
-			jest.advanceTimersByTime(timeout * 2);
-		});
+		jest.advanceTimersByTime(timeout * 2);
 
 		await expect(promise).rejects.toThrow(
 			`sendAndWait timed out after ${timeout}ms`
@@ -132,13 +115,9 @@ describe('rpc client', () => {
 	it('`sendAndWait` ignores messages which lack a matching txId', async () => {
 		const promise = client.sendAndWait<TestPayload>(TEST_OPCODE, {}, timeout);
 
-		Promise.resolve().then(() => {
-			sendMessage({ opcode: TEST_OPCODE, txId: 'test2' });
-		});
+		sendMessage({ opcode: TEST_OPCODE, txId: 'test2' });
 
-		Promise.resolve().then(() => {
-			jest.advanceTimersByTime(timeout * 2);
-		});
+		jest.advanceTimersByTime(timeout * 2);
 
 		await expect(promise).rejects.toThrow(
 			`sendAndWait timed out after ${timeout}ms`
@@ -169,6 +148,7 @@ describe('rpc client', () => {
 		expect(mock).toHaveBeenCalledTimes(0);
 
 		jest.advanceTimersByTime(delay);
+
 		expect(mock).toHaveBeenCalledTimes(1);
 	});
 
