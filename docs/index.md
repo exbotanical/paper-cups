@@ -9,3 +9,5 @@
 |  Package | Description |
 |  --- | --- |
 |  [paper-cups](./paper-cups.md) |  |
+|  [pm-rpc](./pm-rpc.md) |  |
+
