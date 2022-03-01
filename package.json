@@ -1,24 +1,24 @@
 {
-  "name": "pm-rpc",
+  "name": "paper-cups",
   "version": "0.0.0-development",
   "description": "",
   "keywords": [],
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/MatthewZito/pm-rpc.git"
+    "url": "https://github.com/MatthewZito/paper-cups.git"
   },
   "author": "Matthew T Zito (goldmund)",
   "files": [
     "dist/"
   ],
   "exports": {
-    "require": "./dist/pm-rpc.cjs.js",
-    "import": "./dist/pm-rpc.es.js"
+    "require": "./dist/paper-cups.cjs.js",
+    "import": "./dist/paper-cups.es.js"
   },
-  "main": "./dist/pm-rpc.cjs.js",
-  "browser": "./dist/pm-rpc.umd.js",
-  "module": "./dist/pm-rpc.es.js",
+  "main": "./dist/paper-cups.cjs.js",
+  "browser": "./dist/paper-cups.umd.js",
+  "module": "./dist/paper-cups.es.js",
   "types": "dist/index.d.ts",
   "engines": {
     "node": ">= 10"
@@ -46,9 +46,9 @@
     ]
   },
   "bugs": {
-    "url": "https://github.com/MatthewZito/pm-rpc/issues"
+    "url": "https://github.com/MatthewZito/paper-cups/issues"
   },
-  "homepage": "https://github.com/MatthewZito/pm-rpc#readme",
+  "homepage": "https://github.com/MatthewZito/paper-cups#readme",
   "dependencies": {
     "uuid": "^8.3.2"
   },

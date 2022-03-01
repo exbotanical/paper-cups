@@ -33,7 +33,7 @@ export class RpcClient extends EphemeralListener {
 		private readonly serialize: Serialize = JSON.stringify,
 		private readonly deserialize: Deserialize = JSON.parse,
 		logger: LoggerContract = Logger,
-		loggerLocale = 'pm-rpc',
+		loggerLocale = 'paper-cups',
 		shouldDisableLogger: () => boolean = () => process.env.NODE_ENV === 'test'
 	) {
 		super('message');

@@ -8,5 +8,4 @@
 
 |  Package | Description |
 |  --- | --- |
-|  [pm-rpc](./pm-rpc.md) |  |
-
+|  [paper-cups](./paper-cups.md) |  |
