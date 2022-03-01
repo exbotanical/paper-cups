@@ -4,7 +4,7 @@ Simple yet powerful RPC client built on top of postMessage.
 
 - Execute both blocking and non-blocking atomic request/response transactions.
 - Full type safety and contract validation.
-- Automatic cleanup and finalization.
+- Automatic event listener cleanup and finalization.
 - Fast serialization with support for circular references.
 - Built-in logging.
 
