@@ -1,5 +1,5 @@
 /* eslint-disable jest/no-done-callback */
-import { RpcClient } from '../client';
+import { RpcClient } from '../src/client';
 
 import { TEST_OPCODE, TEST_OPCODE2, testPayload, sendMessage } from './utils';
 

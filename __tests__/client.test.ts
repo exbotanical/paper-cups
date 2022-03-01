@@ -1,4 +1,4 @@
-import { RpcClient } from '../client';
+import { RpcClient } from '../src/client';
 
 import { TEST_OPCODE, TEST_OPCODE2, timeout, sendMessage } from './utils';
 

@@ -1,4 +1,4 @@
-import { buildNoopEnv, isNumber } from '../utils';
+import { buildNoopEnv, isNumber } from '../src/utils';
 
 describe('utils', () => {
 	describe('isNumber', () => {

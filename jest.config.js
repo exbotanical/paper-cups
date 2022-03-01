@@ -11,7 +11,7 @@ module.exports = {
 		}
 	},
 	errorOnDeprecated: true,
-	setupFilesAfterEnv: ['<rootDir>/test/setup.ts'],
+	setupFilesAfterEnv: ['<rootDir>/__tests__/setup.ts'],
 	testEnvironment: 'jsdom',
 	testRegex: '.test.ts$',
 	timers: 'fake',
