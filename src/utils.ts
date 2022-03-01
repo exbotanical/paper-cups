@@ -9,10 +9,10 @@ export function buildNoopEnv() {
 	const noop: any = new Proxy(
 		{},
 		{
-			apply(target, thisArg) {
+			apply(_, thisArg) {
 				return () => thisArg;
 			},
-			get(target, prop, receiver) {
+			get(_, __, receiver) {
 				// if (prop === known intermediates here) {
 				// 	return receiver;
 				// }
