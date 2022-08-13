@@ -6,9 +6,9 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/MatthewZito/paper-cups.git"
+    "url": "https://github.com/exbotanical/paper-cups.git"
   },
-  "author": "Matthew T Zito (goldmund)",
+  "author": "Matthew Zito",
   "files": [
     "dist/"
   ],
@@ -27,6 +27,7 @@
     "build": "pnpm clean && tsc && rollup -c && rimraf .build",
     "clean": "rimraf coverage dist .build tsconfig.tsbuildinfo",
     "docgen": "tsc && api-extractor run --local && api-documenter markdown -i temp -o docs",
+    "format": "prettier --write \"src/**/*.{js,ts}\"",
     "lint": "eslint --ext .js,.ts,.json --fix .",
     "prerelease": "npm pack && tar -xvzf *.tgz && rimraf package *.tgz",
     "semantic-release": "semantic-release",
@@ -46,9 +47,9 @@
     ]
   },
   "bugs": {
-    "url": "https://github.com/MatthewZito/paper-cups/issues"
+    "url": "https://github.com/exbotanical/paper-cups/issues"
   },
-  "homepage": "https://github.com/MatthewZito/paper-cups#readme",
+  "homepage": "https://github.com/exbotanical/paper-cups#readme",
   "dependencies": {
     "uuid": "^8.3.2"
   },
@@ -59,7 +60,8 @@
     "@babel/preset-typescript": "7.15.0",
     "@commitlint/cli": "^13.1.0",
     "@commitlint/config-conventional": "^13.1.0",
-    "@magister_zito/eslint-config": "0.4.0",
+    "@magister_zito/eslint-config": "0.14.1",
+    "@magister_zito/prettier-config": "^0.0.4",
     "@microsoft/api-documenter": "^7.9.10",
     "@microsoft/api-extractor": "^7.10.4",
     "@rollup/plugin-babel": "5.3.0",
@@ -67,13 +69,16 @@
     "@rollup/plugin-node-resolve": "13.0.6",
     "@rollup/plugin-typescript": "8.3.0",
     "@types/jest": "27.4.0",
+    "@types/node": "^18.7.3",
     "@types/uuid": "^8.3.4",
     "cz-conventional-changelog": "^3.3.0",
     "eslint": "8.0.1",
     "eslint-config-prettier": "8.3.0",
+    "eslint-plugin-jest": "^26.8.2",
     "husky": "7.0.2",
     "jest": "27.3.1",
     "lint-staged": "12.3.2",
+    "prettier": "^2.7.1",
     "rimraf": "^3.0.2",
     "rollup": "2.58.0",
     "rollup-plugin-dts": "4.0.0",

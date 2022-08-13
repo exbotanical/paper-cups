@@ -1,7 +1,7 @@
-import { buildNoopEnv } from './utils';
+import { buildNoopEnv } from './utils'
 
-type WindowEventName = keyof WindowEventHandlersEventMap;
-type WindowEvent = WindowEventHandlersEventMap[WindowEventName];
+type WindowEventName = keyof WindowEventHandlersEventMap
+type WindowEvent = WindowEventHandlersEventMap[WindowEventName]
 
 /**
  * Register event listeners with automatic cleanup.
@@ -13,36 +13,37 @@ type WindowEvent = WindowEventHandlersEventMap[WindowEventName];
  * Said process' address space may or may not be persistent; in the former scenario, event listeners may accumulate and captivate memory.
  */
 export abstract class EphemeralListener {
-	// run noop as IIFE so we don't bother creating it unless it's needed
-	// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-	protected env = window || (() => buildNoopEnv())();
+  // run noop as IIFE so we don't bother creating it unless it's needed
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+  protected env = window || (() => buildNoopEnv())()
 
-	constructor(protected eventType: WindowEventName) {
-		const onFinalized = (handler: (event: WindowEvent) => void) => {
-			this.env.removeEventListener(eventType, handler);
-		};
+  // eslint-disable-next-line @typescript-eslint/parameter-properties
+  constructor(protected eventType: WindowEventName) {
+    const onFinalized = (handler: (event: WindowEvent) => void) => {
+      this.env.removeEventListener(eventType, handler)
+    }
 
-		let finalizer: FinalizationRegistry<any> | null = new FinalizationRegistry(
-			onFinalized
-		);
+    let finalizer: FinalizationRegistry<any> | null = new FinalizationRegistry(
+      onFinalized,
+    )
 
-		// weak references i.e. will be captured by v8's mark and sweep algorithm
-		// so long as nothing references them
-		const weakRef = new WeakRef(this);
+    // weak references i.e. will be captured by v8's mark and sweep algorithm
+    // so long as nothing references them
+    const weakRef = new WeakRef(this)
 
-		const handler = (event: WindowEvent) => {
-			finalizer = null;
+    const handler = (event: WindowEvent) => {
+      finalizer = null
 
-			// invoke the real handler, which the subclass consumer must implement
-			weakRef.deref()?.onMessage(event);
-		};
+      // invoke the real handler, which the subclass consumer must implement
+      weakRef.deref()?.onMessage(event)
+    }
 
-		finalizer.register(this, handler);
+    finalizer.register(this, handler)
 
-		this.env.addEventListener(eventType, handler);
-	}
+    this.env.addEventListener(eventType, handler)
+  }
 
-	protected abstract onMessage(
-		event: WindowEventHandlersEventMap[keyof WindowEventHandlersEventMap]
-	): void;
+  protected abstract onMessage(
+    event: WindowEventHandlersEventMap[keyof WindowEventHandlersEventMap],
+  ): void
 }

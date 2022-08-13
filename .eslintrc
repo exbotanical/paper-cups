@@ -3,9 +3,16 @@
 		"@magister_zito",
 		"prettier"
 	],
+	"plugins": [
+    "jest"
+  ],
+	"env": {
+    "jest/globals": true
+  },
 	"ignorePatterns": [
 		".build",
-		"coverage"
+		"coverage",
+		"rollup.config.js"
 	],
 	"overrides": [
 		{
