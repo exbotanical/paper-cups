@@ -58,4 +58,4 @@ import { RpcClient } from 'paper-cups';
 
 ## <a name="docs"></a> Documentation
 
-Full documentation can be found [here](https://matthewzito.github.io/paper-cups/paper-cups.html)
+Full documentation can be found [here](https://exbotanical.github.io/paper-cups)
